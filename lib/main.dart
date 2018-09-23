@@ -20,6 +20,15 @@ class LoginScreenState extends State<LoginScreen> {
   bool _startLoadingSanta = false;
   String _name;
   String _pin;
+  final nameController = TextEditingController();
+  final pinController = TextEditingController();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    pinController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +67,7 @@ class LoginScreenState extends State<LoginScreen> {
               constraints: BoxConstraints(maxWidth: 200.0),
               child: TextField(
                 decoration: InputDecoration(hintText: 'Your Name'),
+                controller: nameController,
               ),
             ),
             Container(
@@ -65,6 +75,8 @@ class LoginScreenState extends State<LoginScreen> {
               constraints: BoxConstraints(maxWidth: 200.0),
               child: TextField(
                 decoration: InputDecoration(hintText: 'Your PIN'),
+                controller: pinController,
+                obscureText: true,
               ),
             ),
             Container(
@@ -76,8 +88,8 @@ class LoginScreenState extends State<LoginScreen> {
                   onPressed: () {
                     setState(() {
                       _startLoadingSanta = true;
-                      _name = 'Mom';
-                      _pin = '96867';
+                      _name = nameController.text;
+                      _pin = pinController.text;
                     });
                   },
                 ),
