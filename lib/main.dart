@@ -10,16 +10,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Secret Santa',
-      home: LoginScreen(),
+      home: Scaffold(
+        appBar: AppBar(title: Text('Secret Santa')),
+        body: LoginScreen(),
+      ),
       theme: new ThemeData(primaryColor: Colors.red, accentColor: Colors.white),
     );
   }
 }
 
 class LoginScreenState extends State<LoginScreen> {
-  bool _startLoadingSanta = false;
-  String _name;
-  String _pin;
   final nameController = TextEditingController();
   final pinController = TextEditingController();
 
@@ -32,33 +32,17 @@ class LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('Secret Santa'),
-          actions: <Widget>[
-            IconButton(
-              icon: new Icon(Icons.refresh),
-              color: Theme.of(context).accentColor,
-              onPressed: () {
-                setState(() {
-                  _startLoadingSanta = false;
-                });
-              },
-            )
-          ],
-        ),
-        body: _startLoadingSanta ? Santa(_name, _pin) : loginUI());
-  }
-
-  Widget loginUI() {
-    return Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        new Icon(
-          Icons.card_giftcard,
-          size: 150.0,
-          color: Theme.of(context).primaryColor,
+        Container(
+          child: new Icon(
+            Icons.card_giftcard,
+            size: 100.0,
+            color: Theme.of(context).primaryColor,
+          ),
+          width: double.infinity,
         ),
         Column(
           children: <Widget>[
@@ -77,6 +61,7 @@ class LoginScreenState extends State<LoginScreen> {
                 decoration: InputDecoration(hintText: 'Your PIN'),
                 controller: pinController,
                 obscureText: true,
+                keyboardType: TextInputType.number,
               ),
             ),
             Container(
@@ -86,11 +71,14 @@ class LoginScreenState extends State<LoginScreen> {
                 child: RaisedButton(
                   child: Text('Reveal Your Giftee'),
                   onPressed: () {
-                    setState(() {
-                      _startLoadingSanta = true;
-                      _name = nameController.text;
-                      _pin = pinController.text;
-                    });
+                    if (nameController.text != "" && pinController.text != "") {
+                      _login();
+                    } else {
+                      final snackBar = SnackBar(
+                        content: Text('Oops - we need your name and your PIN.'),
+                      );
+                      Scaffold.of(context).showSnackBar(snackBar);
+                    }
                   },
                 ),
               ),
@@ -101,6 +89,18 @@ class LoginScreenState extends State<LoginScreen> {
         )
       ],
     );
+  }
+
+  void _login() {
+    Navigator.of(context)
+        .push(new MaterialPageRoute(builder: (BuildContext context) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Secret Santa'),
+        ),
+        body: Santa(nameController.text, pinController.text),
+      );
+    }));
   }
 
   FutureBuilder<Widget> Santa(String name, String pin) {
@@ -133,8 +133,10 @@ class LoginScreenState extends State<LoginScreen> {
               minWidth: double.infinity, minHeight: double.infinity),
           alignment: Alignment(0.0, 0.0),
           child: Text(
-              'We couldn\'t find that name and PIN combination - make sure you typed everything correctly.',
-              style: TextStyle(fontSize: 24.0), textAlign: TextAlign.center,));
+            'We couldn\'t find that name and PIN combination - make sure you typed everything correctly.',
+            style: TextStyle(fontSize: 24.0),
+            textAlign: TextAlign.center,
+          ));
     } else if (response.statusCode == 200) {
       return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
