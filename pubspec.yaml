@@ -40,7 +40,7 @@ flutter:
 
 flutter_icons:
   android: true
-  ios: true
+  ios: santa_white.png
   image_path: santa.png
 
   # To add assets to your application, add an assets section, like this:

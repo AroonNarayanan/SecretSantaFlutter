@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'dart:convert';
 import 'dart:async';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
@@ -10,12 +12,143 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Secret Santa',
-      home: Scaffold(
-        appBar: AppBar(title: Text('Secret Santa')),
-        body: LoginScreen(),
-      ),
+      home: Home(),
       theme: new ThemeData(primaryColor: Colors.red, accentColor: Colors.white),
     );
+  }
+}
+
+class Home extends StatefulWidget {
+  @override
+  HomeState createState() => new HomeState();
+}
+
+class HomeState extends State<Home> {
+  bool _startLoadingFamily = false;
+  String _passphrase;
+  final passphraseController = TextEditingController();
+
+  @override
+  void dispose() {
+    passphraseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Secret Santa'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.people),
+            onPressed: () {
+              Navigator.of(context)
+                  .push(new MaterialPageRoute(builder: (BuildContext context) {
+                return Scaffold(
+                  appBar: AppBar(title: Text('Your Family')),
+                  body: _startLoadingFamily ? _familyScreen() : _pinScreen(),
+                );
+              }));
+            },
+          )
+        ],
+      ),
+      body: LoginScreen(),
+    );
+  }
+
+  FutureBuilder<Widget> _familyScreen() {
+    return FutureBuilder<Widget>(
+      future: _loadFamily(_passphrase),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return snapshot.data;
+        } else if (snapshot.hasError) {
+          return _familyError();
+        }
+        return Container(
+          child: CupertinoActivityIndicator(),
+          constraints: BoxConstraints(
+              minWidth: double.infinity, minHeight: double.infinity),
+        );
+      },
+    );
+  }
+
+  Widget _pinScreen() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Container(
+          child: new Icon(
+            Icons.people,
+            size: 100.0,
+            color: Theme.of(context).primaryColor,
+          ),
+          width: double.infinity,
+        ),
+        Container(
+          height: 50.0,
+          constraints: BoxConstraints(maxWidth: 200.0),
+          child: TextField(
+            decoration: InputDecoration(hintText: 'Family Passphrase'),
+            controller: passphraseController,
+          ),
+        ),
+        Container(
+          constraints: BoxConstraints(maxWidth: 200.0),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: double.infinity),
+            child: RaisedButton(
+              child: Text('View Family'),
+              onPressed: () {
+                setState(() {
+                  _passphrase = passphraseController.text;
+                  _startLoadingFamily = true;
+                });
+              },
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Future<Widget> _loadFamily(String passphrase) async {
+    final response = await http.get(
+        'https://aroonsecretsanta.azurewebsites.net/family' +
+            '?hideGiftees=true&passphrase=' +
+            passphrase);
+    if (response.statusCode == 200) {
+      final family = json.decode(response.body);
+      return ListView.builder(
+          itemCount: (family.length * 2),
+          itemBuilder: (context, i) {
+            if (i.isOdd) {
+              return Divider();
+            }
+            return ListTile(
+              title: Text(family[i ~/ 2]['name']),
+              trailing: Text('PIN: ' + family[i ~/ 2]['pin']),
+            );
+          });
+    } else {
+      return _familyError();
+    }
+  }
+
+  Widget _familyError() {
+    return Container(
+        constraints: BoxConstraints(
+            minWidth: double.infinity, minHeight: double.infinity),
+        alignment: Alignment(0.0, 0.0),
+        child: Text(
+          'We could\'t load your family. Do you have the right password?',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 24.0),
+        ));
   }
 }
 
