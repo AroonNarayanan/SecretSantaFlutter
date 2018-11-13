@@ -46,8 +46,10 @@ class HomeState extends State<Home> {
               Navigator.of(context)
                   .push(new MaterialPageRoute(builder: (BuildContext context) {
                 return Scaffold(
-                  appBar: AppBar(title: Text('Your Family')),
-                  body: _startLoadingFamily ? _familyScreen() : _pinScreen(),
+                  appBar: AppBar(
+                    title: Text('Your Family'),
+                  ),
+                  body: _pinScreen(),
                 );
               }));
             },
@@ -58,21 +60,26 @@ class HomeState extends State<Home> {
     );
   }
 
-  FutureBuilder<Widget> _familyScreen() {
-    return FutureBuilder<Widget>(
-      future: _loadFamily(_passphrase),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return snapshot.data;
-        } else if (snapshot.hasError) {
-          return _familyError();
-        }
-        return Container(
-          child: CupertinoActivityIndicator(),
-          constraints: BoxConstraints(
-              minWidth: double.infinity, minHeight: double.infinity),
-        );
-      },
+  Widget _familyScreen(String passphrase) {
+    return Scaffold(
+      body: FutureBuilder<Widget>(
+        future: _loadFamily(passphrase),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return snapshot.data;
+          } else if (snapshot.hasError) {
+            return _familyError();
+          }
+          return Container(
+            child: CupertinoActivityIndicator(),
+            constraints: BoxConstraints(
+                minWidth: double.infinity, minHeight: double.infinity),
+          );
+        },
+      ),
+      appBar: AppBar(
+        title: Text('Your Family'),
+      ),
     );
   }
 
@@ -93,7 +100,7 @@ class HomeState extends State<Home> {
           height: 50.0,
           constraints: BoxConstraints(maxWidth: 200.0),
           child: TextField(
-            decoration: InputDecoration(hintText: 'Family Passphrase'),
+            decoration: InputDecoration(hintText: 'Family ID'),
             controller: passphraseController,
           ),
         ),
@@ -104,10 +111,10 @@ class HomeState extends State<Home> {
             child: RaisedButton(
               child: Text('View Family'),
               onPressed: () {
-                setState(() {
-                  _passphrase = passphraseController.text;
-                  _startLoadingFamily = true;
-                });
+                Navigator.of(context).push(
+                    new MaterialPageRoute(builder: (BuildContext context) {
+                  return _familyScreen(passphraseController.text);
+                }));
               },
             ),
           ),
@@ -119,7 +126,7 @@ class HomeState extends State<Home> {
   Future<Widget> _loadFamily(String passphrase) async {
     final response = await http.get(
         'https://aroonsecretsanta.azurewebsites.net/family' +
-            '?hideGiftees=true&passphrase=' +
+            '?hideGiftees=true&familyId=' +
             passphrase);
     if (response.statusCode == 200) {
       final family = json.decode(response.body);
@@ -243,7 +250,7 @@ class LoginScreenState extends State<LoginScreen> {
         if (snapshot.hasData) {
           return snapshot.data;
         } else if (snapshot.hasError) {
-          return Text('An error occurred.');
+          return Text('An error occured: \n' + snapshot.error.toString());
         }
         return Container(
           child: CupertinoActivityIndicator(),
@@ -271,6 +278,7 @@ class LoginScreenState extends State<LoginScreen> {
             textAlign: TextAlign.center,
           ));
     } else if (response.statusCode == 200) {
+      final giftee = json.decode(response.body);
       return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -281,8 +289,12 @@ class LoginScreenState extends State<LoginScreen> {
                 width: double.infinity,
                 alignment: Alignment(0.0, 0.0)),
             Text(
-              response.body,
+              giftee['name'],
               style: TextStyle(fontSize: 80.0),
+            ),
+            Text(
+              'your budget is ' + giftee['budget'],
+              style: TextStyle(fontSize: 24.0),
             ),
             Text(
               'have fun!',
