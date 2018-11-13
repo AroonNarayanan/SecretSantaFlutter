@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'dart:convert';
 import 'dart:async';
-import 'dart:developer';
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
@@ -24,8 +24,6 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
-  bool _startLoadingFamily = false;
-  String _passphrase;
   final passphraseController = TextEditingController();
 
   @override
