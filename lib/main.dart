@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import './login.dart';
+import './resources.dart';
+import './register.dart';
 
 void main() => runApp(MyApp());
 
@@ -12,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Secret Santa',
+      title: Strings.secretSanta,
       home: Home(),
       theme: new ThemeData(primaryColor: Colors.red, accentColor: Colors.white),
     );
@@ -37,13 +39,13 @@ class HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Secret Santa'),
+        title: Text(Strings.secretSanta),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.people),
             onPressed: () {
-              Navigator.of(context)
-                  .push(new MaterialPageRoute(builder: (BuildContext secondContext) {
+              Navigator.of(context).push(
+                  new MaterialPageRoute(builder: (BuildContext secondContext) {
                 return _pinScreen(secondContext);
               }));
             },
@@ -72,7 +74,17 @@ class HomeState extends State<Home> {
         },
       ),
       appBar: AppBar(
-        title: Text('Your Family'),
+        title: Text(Strings.yourGroup),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext newPageContext) {
+                return RegisterFamilyScreen();
+              }));
+            },
+          )
+        ],
       ),
     );
   }
@@ -80,7 +92,7 @@ class HomeState extends State<Home> {
   Widget _pinScreen(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Your Family'),
+        title: Text(Strings.yourGroup),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -98,7 +110,7 @@ class HomeState extends State<Home> {
             height: 50.0,
             constraints: BoxConstraints(maxWidth: 200.0),
             child: TextField(
-              decoration: InputDecoration(hintText: 'Family ID'),
+              decoration: InputDecoration(hintText: 'Group ID'),
               controller: passphraseController,
             ),
           ),
@@ -107,7 +119,7 @@ class HomeState extends State<Home> {
             child: ConstrainedBox(
               constraints: BoxConstraints(minWidth: double.infinity),
               child: RaisedButton(
-                child: Text('View Family'),
+                child: Text('View Group'),
                 onPressed: () {
                   if (passphraseController.text != "") {
                     Navigator.of(context).push(
@@ -165,5 +177,3 @@ class HomeState extends State<Home> {
         ));
   }
 }
-
-

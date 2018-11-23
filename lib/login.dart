@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import './resources.dart';
+import './register.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -75,7 +78,11 @@ class LoginScreenState extends State<LoginScreen> {
                 constraints: BoxConstraints(minWidth: double.infinity),
                 child: FlatButton(
                   child: Text('Don\'t have a PIN?'),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext newPageContext) {
+                      return RegisterFamilyScreen();
+                    }));
+                  },
                 ),
               ),
             )
@@ -92,7 +99,7 @@ class LoginScreenState extends State<LoginScreen> {
         .push(new MaterialPageRoute(builder: (BuildContext context) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Secret Santa'),
+          title: Text(Strings.secretSanta),
         ),
         body: Santa(nameController.text, pinController.text),
       );
