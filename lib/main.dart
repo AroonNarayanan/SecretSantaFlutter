@@ -56,10 +56,10 @@ class HomeState extends State<Home> {
     );
   }
 
-  Widget _familyScreen(String passphrase) {
+  static Widget familyScreen(String passphrase) {
     return Scaffold(
       body: FutureBuilder<Widget>(
-        future: _loadFamily(passphrase),
+        future: loadFamily(passphrase),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return snapshot.data;
@@ -87,7 +87,8 @@ class HomeState extends State<Home> {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext newPageContext) {
+              Navigator.of(context).push(
+                  new MaterialPageRoute(builder: (BuildContext newPageContext) {
                 return RegisterFamilyScreen();
               }));
             },
@@ -118,23 +119,25 @@ class HomeState extends State<Home> {
             constraints: BoxConstraints(maxWidth: 200.0),
             child: ConstrainedBox(
               constraints: BoxConstraints(minWidth: double.infinity),
-              child: RaisedButton(
-                child: Text('View Group'),
-                onPressed: () {
-                  if (passphraseController.text != "") {
-                    Navigator.of(context).push(
-                        new MaterialPageRoute(builder: (BuildContext context) {
-                      return _familyScreen(passphraseController.text);
-                    }));
-                  } else {
-                    final snackBar = SnackBar(
-                      content: Text('Oops - we need your Family ID.'),
-                    );
+              child: Builder(builder: (BuildContext context) {
+                return RaisedButton(
+                  child: Text('View Group'),
+                  onPressed: () {
+                    if (passphraseController.text != "") {
+                      Navigator.of(context).push(new MaterialPageRoute(
+                          builder: (BuildContext context) {
+                        return familyScreen(passphraseController.text);
+                      }));
+                    } else {
+                      final snackBar = SnackBar(
+                        content: Text('Oops - we need your Group ID.'),
+                      );
 
-                    Scaffold.of(context).showSnackBar(snackBar);
-                  }
-                },
-              ),
+                      Scaffold.of(context).showSnackBar(snackBar);
+                    }
+                  },
+                );
+              }),
             ),
           )
         ],
@@ -142,7 +145,7 @@ class HomeState extends State<Home> {
     );
   }
 
-  Future<Widget> _loadFamily(String passphrase) async {
+  static Future<Widget> loadFamily(String passphrase) async {
     final response = await http.get(
         'https://aroonsecretsanta.azurewebsites.net/family' +
             '?hideGiftees=true&familyId=' +
@@ -157,7 +160,7 @@ class HomeState extends State<Home> {
             }
             return ListTile(
               title: Text(family[i ~/ 2]['name']),
-              trailing: Text('PIN: ' + family[i ~/ 2]['pin']),
+              subtitle: Text('PIN: ' + family[i ~/ 2]['pin']),
             );
           });
     } else {
@@ -165,7 +168,7 @@ class HomeState extends State<Home> {
     }
   }
 
-  Widget _familyError() {
+  static Widget _familyError() {
     return Container(
         constraints: BoxConstraints(
             minWidth: double.infinity, minHeight: double.infinity),

@@ -1,10 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'dart:convert';
+import './main.dart' as main;
 
 class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
   var groupList = <String>[];
   final budgetController = TextEditingController();
   final nameController = TextEditingController();
+  var groupSubmitted = false;
 
   @override
   Widget build(BuildContext context) {
@@ -12,10 +17,25 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
       appBar: AppBar(
         title: Text('Register a Group'),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.save),
-            onPressed: () {},
-          )
+          Builder(builder: (BuildContext context) {
+            return IconButton(
+              icon: Icon(Icons.save),
+              onPressed: () {
+                if (budgetController.text == '') {
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text('Oops - your group needs a budget!'),
+                  ));
+                } else if (groupList.length == 0) {
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text('Oops - your group needs members!'),
+                  ));
+                } else {
+                  groupSubmitted = true;
+                  setState(() {});
+                }
+              },
+            );
+          }),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -62,7 +82,13 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
         },
         child: Icon(Icons.add),
       ),
-      body: Container(
+      body: groupSubmitted ? creatingGroup() : createGroup(),
+    );
+  }
+
+  Widget createGroup() {
+    return Builder(builder: (BuildContext context) {
+      return Container(
           padding: EdgeInsets.only(top: 20.0),
           width: double.infinity,
           child: Column(
@@ -76,6 +102,7 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
                 child: TextField(
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(icon: Icon(Icons.attach_money)),
+                  controller: budgetController,
                 ),
               ),
               Container(
@@ -103,12 +130,92 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
                 ),
               )
             ],
-          )),
+          ));
+    });
+  }
+
+  FutureBuilder<Widget> creatingGroup() {
+    return FutureBuilder<Widget>(
+      future: _registerFamily(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return snapshot.data;
+        } else if (snapshot.hasError) {
+          return Text(
+            'An error occured: \n' + snapshot.error.toString(),
+            textAlign: TextAlign.center,
+          );
+        }
+        return Container(
+          child: CupertinoActivityIndicator(),
+          constraints: BoxConstraints(
+              minWidth: double.infinity, minHeight: double.infinity),
+        );
+      },
     );
+  }
+
+  Future<Widget> _registerFamily() async {
+    final groupJson =
+        json.encode(Group('\$' + budgetController.text, groupList));
+    final response = await http.post(
+        'https://aroonsecretsanta.azurewebsites.net/registerFamily/',
+        body: groupJson,
+        encoding: Encoding.getByName("application/json"), headers: {
+          'Content-Type': 'application/json'
+    });
+    if (response.statusCode == 200) {
+      final groupResponse = json.decode(response.body);
+      return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+                child: Text('your group has been created!\nyour group ID is',
+                    style: TextStyle(fontSize: 20.0), textAlign: TextAlign.center,),
+                width: double.infinity,
+                alignment: Alignment(0.0, 0.0)),
+            Text(
+              groupResponse['id'],
+              style: TextStyle(fontSize: 30.0),
+            ),
+            Text(
+              'make sure you write this down -\nyou won\'t see it again.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 20.0),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 10.0),
+              child: RaisedButton(
+                  child: Text('View Group'),
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (BuildContext context) {
+                      return main.HomeState.familyScreen(groupResponse['id']);
+                    }));
+                  }),
+            )
+          ]);
+    } else {
+      return Text('Error encountered. Please try again. \n' + response.statusCode.toString());
+    }
   }
 }
 
 class RegisterFamilyScreen extends StatefulWidget {
   @override
   RegisterFamilyScreenState createState() => new RegisterFamilyScreenState();
+}
+
+class Group {
+  String budget;
+  List<String> family;
+
+  Group(this.budget, this.family);
+
+  Map<String, dynamic> toJson() =>
+      {
+        'budget': budget,
+        'family': family,
+      };
 }
