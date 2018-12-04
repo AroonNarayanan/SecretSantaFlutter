@@ -75,6 +75,14 @@ class HomeState extends State<Home> {
       ),
       appBar: AppBar(
         title: Text(Strings.yourGroup),
+      ),
+    );
+  }
+
+  Widget _pinScreen(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(Strings.groups),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add),
@@ -85,14 +93,6 @@ class HomeState extends State<Home> {
             },
           )
         ],
-      ),
-    );
-  }
-
-  Widget _pinScreen(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(Strings.yourGroup),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
