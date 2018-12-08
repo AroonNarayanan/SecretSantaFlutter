@@ -4,12 +4,15 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import './main.dart' as main;
+import './resources.dart';
 
 class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
   var groupList = <String>[];
   final budgetController = TextEditingController();
   final nameController = TextEditingController();
   var groupSubmitted = false;
+  DateTime dueDate;
+  var dueDateString = 'no date set';
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +27,11 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
                 if (budgetController.text == '') {
                   Scaffold.of(context).showSnackBar(SnackBar(
                     content: Text('Oops - your group needs a budget!'),
+                  ));
+                } else if (dueDate == null) {
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content:
+                        Text('Oops - your group needs gift exchange date!'),
                   ));
                 } else if (groupList.length == 0) {
                   Scaffold.of(context).showSnackBar(SnackBar(
@@ -107,6 +115,26 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
               ),
               Container(
                 margin: EdgeInsets.only(top: 20.0),
+                child: RaisedButton(
+                  child: Text('Set Gift Exchange Date'),
+                  onPressed: () async {
+                    dueDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime(DateTime.now().year,
+                          DateTime.now().month + 1, DateTime.now().day),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2100),
+                    );
+                    dueDateString = dueDate != null
+                        ? Utils.dateToReadableString(dueDate)
+                        : 'no date set';
+                    setState(() {});
+                  },
+                ),
+              ),
+              Text(dueDateString),
+              Container(
+                margin: EdgeInsets.only(top: 20.0),
                 child: Text(
                   'Members:',
                   style: TextStyle(fontSize: 20.0),
@@ -161,9 +189,8 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
     final response = await http.post(
         'https://aroonsecretsanta.azurewebsites.net/registerFamily/',
         body: groupJson,
-        encoding: Encoding.getByName("application/json"), headers: {
-          'Content-Type': 'application/json'
-    });
+        encoding: Encoding.getByName("application/json"),
+        headers: {'Content-Type': 'application/json'});
     if (response.statusCode == 200) {
       final groupResponse = json.decode(response.body);
       return Column(
@@ -171,8 +198,11 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Container(
-                child: Text('your group has been created!\nyour group ID is',
-                    style: TextStyle(fontSize: 20.0), textAlign: TextAlign.center,),
+                child: Text(
+                  'your group has been created!\nyour group ID is',
+                  style: TextStyle(fontSize: 20.0),
+                  textAlign: TextAlign.center,
+                ),
                 width: double.infinity,
                 alignment: Alignment(0.0, 0.0)),
             Text(
@@ -197,7 +227,8 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
             )
           ]);
     } else {
-      return Text('Error encountered. Please try again. \n' + response.statusCode.toString());
+      return Text('Error encountered. Please try again. \n' +
+          response.statusCode.toString());
     }
   }
 }
@@ -213,8 +244,7 @@ class Group {
 
   Group(this.budget, this.family);
 
-  Map<String, dynamic> toJson() =>
-      {
+  Map<String, dynamic> toJson() => {
         'budget': budget,
         'family': family,
       };

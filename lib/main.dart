@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: Strings.secretSanta,
       home: Home(),
-      theme: new ThemeData(primaryColor: Colors.red, accentColor: Colors.white),
+      theme: new ThemeData(primaryColor: Colors.red, accentColor: Colors.redAccent, iconTheme: IconThemeData(color: Colors.white)),
     );
   }
 }
@@ -75,6 +75,12 @@ class HomeState extends State<Home> {
       ),
       appBar: AppBar(
         title: Text(Strings.yourGroup),
+//        actions: <Widget>[
+//          IconButton(
+//            icon: Icon(Icons.delete),
+//            onPressed: () {},
+//          )
+//        ],
       ),
     );
   }
