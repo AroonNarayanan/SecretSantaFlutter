@@ -21,31 +21,33 @@ class LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Container(
-          child: new Icon(
-            Icons.card_giftcard,
-            size: 100.0,
-            color: Theme.of(context).primaryColor,
-          ),
-          width: double.infinity,
-        ),
-        Column(
+    return Container(
+      color: Colors.grey[100],
+      alignment: AlignmentDirectional.center,
+      child: Card(
+        elevation: 2.0,
+        child: SingleChildScrollView(child: Container(
+          padding: EdgeInsets.all(20.0),
+            child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Container(
-              height: 50.0,
-              constraints: BoxConstraints(maxWidth: 200.0),
+              child: new Icon(
+                Icons.card_giftcard,
+                size: 100.0,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+            Container(
+              width: 200.0,
               child: TextField(
                 decoration: InputDecoration(hintText: 'Your Name'),
                 controller: nameController,
               ),
             ),
             Container(
-              height: 50.0,
-              constraints: BoxConstraints(maxWidth: 200.0),
+              margin: EdgeInsets.only(top: 5.0),
+              width: 200.0,
               child: TextField(
                 decoration: InputDecoration(hintText: 'Your PIN'),
                 controller: pinController,
@@ -54,43 +56,37 @@ class LoginScreenState extends State<LoginScreen> {
               ),
             ),
             Container(
-              constraints: BoxConstraints(maxWidth: 200.0),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minWidth: double.infinity),
-                child: RaisedButton(
-                  child: Text('Reveal Your Giftee'),
-                  onPressed: () {
-                    if (nameController.text != "" && pinController.text != "") {
-                      _login();
-                    } else {
-                      final snackBar = SnackBar(
-                        content: Text('Oops - we need your name and your PIN.'),
-                      );
-                      Scaffold.of(context).showSnackBar(snackBar);
-                    }
-                  },
-                ),
+              width: 200.0,
+              margin: EdgeInsets.only(top: 5.0),
+              child: RaisedButton(
+                child: Text('Reveal Your Giftee'),
+                onPressed: () {
+                  if (nameController.text != "" && pinController.text != "") {
+                    _login();
+                  } else {
+                    final snackBar = SnackBar(
+                      content: Text('Oops - we need your name and your PIN.'),
+                    );
+                    Scaffold.of(context).showSnackBar(snackBar);
+                  }
+                },
               ),
             ),
             Container(
-              constraints: BoxConstraints(maxWidth: 200.0),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minWidth: double.infinity),
-                child: FlatButton(
-                  child: Text('Don\'t have a PIN?'),
-                  onPressed: () {
-                    Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext newPageContext) {
-                      return RegisterFamilyScreen();
-                    }));
-                  },
-                ),
+              width: 200.0,
+              child: FlatButton(
+                child: Text('Don\'t have a PIN?'),
+                onPressed: () {
+                  Navigator.of(context).push(new MaterialPageRoute(
+                      builder: (BuildContext newPageContext) {
+                    return RegisterFamilyScreen();
+                  }));
+                },
               ),
             )
           ],
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-        )
-      ],
+        )),
+      ),),
     );
   }
 

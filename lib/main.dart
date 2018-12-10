@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import './login.dart';
 import './resources.dart';
 import './register.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,7 +17,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: Strings.secretSanta,
       home: Home(),
-      theme: new ThemeData(primaryColor: Colors.red, accentColor: Colors.redAccent, iconTheme: IconThemeData(color: Colors.white)),
+      theme: new ThemeData(
+          primaryColor: Colors.red,
+          accentColor: Colors.redAccent,
+          iconTheme: IconThemeData(color: Colors.white)),
     );
   }
 }
@@ -43,6 +47,7 @@ class HomeState extends State<Home> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.people),
+            tooltip: 'Groups',
             onPressed: () {
               Navigator.of(context).push(
                   new MaterialPageRoute(builder: (BuildContext secondContext) {
@@ -74,7 +79,7 @@ class HomeState extends State<Home> {
         },
       ),
       appBar: AppBar(
-        title: Text(Strings.yourGroup),
+        title: Text('Group ' + passphrase),
 //        actions: <Widget>[
 //          IconButton(
 //            icon: Icon(Icons.delete),
@@ -101,52 +106,57 @@ class HomeState extends State<Home> {
           )
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Container(
-            child: new Icon(
-              Icons.people,
-              size: 100.0,
-              color: Theme.of(context).primaryColor,
-            ),
-            width: double.infinity,
-          ),
-          Container(
-            height: 50.0,
-            constraints: BoxConstraints(maxWidth: 200.0),
-            child: TextField(
-              decoration: InputDecoration(hintText: 'Group ID'),
-              controller: passphraseController,
-            ),
-          ),
-          Container(
-            constraints: BoxConstraints(maxWidth: 200.0),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minWidth: double.infinity),
-              child: Builder(builder: (BuildContext context) {
-                return RaisedButton(
-                  child: Text('View Group'),
-                  onPressed: () {
-                    if (passphraseController.text != "") {
-                      Navigator.of(context).push(new MaterialPageRoute(
-                          builder: (BuildContext context) {
-                        return familyScreen(passphraseController.text);
-                      }));
-                    } else {
-                      final snackBar = SnackBar(
-                        content: Text('Oops - we need your Group ID.'),
-                      );
+      body: Container(
+        color: Colors.grey[100],
+        alignment: AlignmentDirectional.center,
+        child: Card(
+          elevation: 2.0,
+          child: Container(
+            padding: EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  child: new Icon(
+                    Icons.people,
+                    size: 100.0,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                Container(
+                  width: 200.0,
+                  child: TextField(
+                    decoration: InputDecoration(hintText: 'Group ID'),
+                    controller: passphraseController,
+                  ),
+                ),
+                Container(
+                  width: 200.0,
+                  margin: EdgeInsets.only(top:5.0),
+                  child: Builder(builder: (BuildContext context) {
+                    return RaisedButton(
+                      child: Text('View Group'),
+                      onPressed: () {
+                        if (passphraseController.text != "") {
+                          Navigator.of(context).push(new MaterialPageRoute(
+                              builder: (BuildContext context) {
+                            return familyScreen(passphraseController.text);
+                          }));
+                        } else {
+                          final snackBar = SnackBar(
+                            content: Text('Oops - we need your Group ID.'),
+                          );
 
-                      Scaffold.of(context).showSnackBar(snackBar);
-                    }
-                  },
-                );
-              }),
+                          Scaffold.of(context).showSnackBar(snackBar);
+                        }
+                      },
+                    );
+                  }),
+                )
+              ],
             ),
-          )
-        ],
+          ),
+        ),
       ),
     );
   }
@@ -157,18 +167,33 @@ class HomeState extends State<Home> {
             '?hideGiftees=true&familyId=' +
             passphrase);
     if (response.statusCode == 200) {
-      final family = json.decode(response.body);
-      return ListView.builder(
-          itemCount: (family.length * 2),
-          itemBuilder: (context, i) {
-            if (i.isOdd) {
-              return Divider();
-            }
-            return ListTile(
-              title: Text(family[i ~/ 2]['name']),
-              subtitle: Text('PIN: ' + family[i ~/ 2]['pin']),
-            );
-          });
+      var family;
+      try {
+        family = json.decode(response.body);
+      } catch (e) {
+        return _familyError();
+      }
+      return Container(
+        margin: EdgeInsets.only(top: 5.0, left: 15.0, right: 15.0),
+        color: Colors.grey[100],
+        child: ListView.builder(
+            itemCount: family.length,
+            itemBuilder: (context, i) {
+              return Card(
+                elevation: 2.0,
+                child: ListTile(
+                  title: Text(family[i]['name']),
+                  subtitle: Text('PIN: ' + family[i]['pin']),
+                  onLongPress: () {
+                    Clipboard.setData(ClipboardData(text: family[i]['pin']));
+                    Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text('PIN copied to clipboard.'),
+                    ));
+                  },
+                ),
+              );
+            }),
+      );
     } else {
       return _familyError();
     }

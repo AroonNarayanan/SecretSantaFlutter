@@ -97,42 +97,69 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
   Widget createGroup() {
     return Builder(builder: (BuildContext context) {
       return Container(
-          padding: EdgeInsets.only(top: 20.0),
+          padding: EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
+          color: Colors.grey[100],
           width: double.infinity,
           child: Column(
             children: <Widget>[
-              Text(
-                'Set your budget:',
-                style: TextStyle(fontSize: 20.0),
-              ),
-              Container(
-                constraints: BoxConstraints(maxWidth: 100.0),
-                child: TextField(
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(icon: Icon(Icons.attach_money)),
-                  controller: budgetController,
+              Card(
+                elevation: 2.0,
+                child: Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.all(10.0),
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        'Set your budget:',
+                        style: TextStyle(fontSize: 20.0),
+                      ),
+                      Container(
+                        constraints: BoxConstraints(maxWidth: 100.0),
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          decoration:
+                              InputDecoration(icon: Icon(Icons.attach_money)),
+                          controller: budgetController,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              Container(
-                margin: EdgeInsets.only(top: 20.0),
-                child: RaisedButton(
-                  child: Text('Set Gift Exchange Date'),
-                  onPressed: () async {
-                    dueDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime(DateTime.now().year,
-                          DateTime.now().month + 1, DateTime.now().day),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(2100),
-                    );
-                    dueDateString = dueDate != null
-                        ? Utils.dateToReadableString(dueDate)
-                        : 'no date set';
-                    setState(() {});
-                  },
+              Card(
+                elevation: 2.0,
+                child: Container(
+                  margin: EdgeInsets.all(10.0),
+                  width: double.infinity,
+                  child: Column(
+                    children: <Widget>[
+                      RaisedButton(
+                        child: Text('Set Gift Exchange Date'),
+                        onPressed: () async {
+                          dueDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime(DateTime.now().year,
+                                DateTime.now().month, DateTime.now().day + 14),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2100),
+                          );
+                          dueDateString = dueDate != null
+                              ? Utils.dateToReadableString(dueDate)
+                              : 'no date set';
+                          setState(() {});
+                        },
+                      ),
+                      Text(dueDateString),
+                    ],
+                  ),
                 ),
               ),
-              Text(dueDateString),
+              Card(
+                elevation: 3.0,
+                child: Column(
+                  children: <Widget>[],
+                ),
+              ),
               Container(
                 margin: EdgeInsets.only(top: 20.0),
                 child: Text(
@@ -143,18 +170,18 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
               new Expanded(
                 child: ListView.builder(
                   itemBuilder: (context, i) {
-                    if (i.isOdd) {
-                      return Divider();
-                    }
-                    return ListTile(
-                      title: Text(groupList[i ~/ 2]),
-                      onLongPress: () {
-                        groupList.removeAt(i ~/ 2);
-                        setState(() {});
-                      },
+                    return Card(
+                      elevation: 2.0,
+                      child: ListTile(
+                        title: Text(groupList[i]),
+                        onLongPress: () {
+                          groupList.removeAt(i);
+                          setState(() {});
+                        },
+                      ),
                     );
                   },
-                  itemCount: groupList.length * 2,
+                  itemCount: groupList.length,
                 ),
               )
             ],
@@ -185,7 +212,7 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
 
   Future<Widget> _registerFamily() async {
     final groupJson =
-        json.encode(Group('\$' + budgetController.text, groupList));
+        json.encode(Group('\$' + budgetController.text, dueDate.toIso8601String(), groupList));
     final response = await http.post(
         'https://aroonsecretsanta.azurewebsites.net/registerFamily/',
         body: groupJson,
@@ -240,12 +267,14 @@ class RegisterFamilyScreen extends StatefulWidget {
 
 class Group {
   String budget;
+  String date;
   List<String> family;
 
-  Group(this.budget, this.family);
+  Group(this.budget, this.date, this.family);
 
   Map<String, dynamic> toJson() => {
         'budget': budget,
+        'date': date,
         'family': family,
       };
 }
