@@ -1,10 +1,13 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:async';
-import 'dart:convert';
+
 import './main.dart' as main;
 import './resources.dart';
+import 'models.dart';
 
 class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
   var groupList = <String>[];
@@ -126,34 +129,34 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
                   ),
                 ),
               ),
-              Card(
-                elevation: 2.0,
-                child: Container(
-                  margin: EdgeInsets.all(10.0),
-                  width: double.infinity,
-                  child: Column(
-                    children: <Widget>[
-                      RaisedButton(
-                        child: Text('Set Gift Exchange Date'),
-                        onPressed: () async {
-                          dueDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime(DateTime.now().year,
-                                DateTime.now().month, DateTime.now().day + 14),
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime(2100),
-                          );
-                          dueDateString = dueDate != null
-                              ? Utils.dateToReadableString(dueDate)
-                              : 'no date set';
-                          setState(() {});
-                        },
-                      ),
-                      Text(dueDateString),
-                    ],
-                  ),
-                ),
-              ),
+//              Card(
+//                elevation: 2.0,
+//                child: Container(
+//                  margin: EdgeInsets.all(10.0),
+//                  width: double.infinity,
+//                  child: Column(
+//                    children: <Widget>[
+//                      RaisedButton(
+//                        child: Text('Set Gift Exchange Date'),
+//                        onPressed: () async {
+//                          dueDate = await showDatePicker(
+//                            context: context,
+//                            initialDate: DateTime(DateTime.now().year,
+//                                DateTime.now().month, DateTime.now().day + 14),
+//                            firstDate: DateTime.now(),
+//                            lastDate: DateTime(2100),
+//                          );
+//                          dueDateString = dueDate != null
+//                              ? Utils.dateToReadableString(dueDate)
+//                              : 'no date set';
+//                          setState(() {});
+//                        },
+//                      ),
+//                      Text(dueDateString),
+//                    ],
+//                  ),
+//                ),
+//              ),
               Card(
                 elevation: 3.0,
                 child: Column(
@@ -174,10 +177,14 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
                       elevation: 2.0,
                       child: ListTile(
                         title: Text(groupList[i]),
-                        onLongPress: () {
-                          groupList.removeAt(i);
-                          setState(() {});
-                        },
+                        trailing: IconButton(
+                          icon: Icon(Icons.delete),
+                          tooltip: 'Remove Member',
+                          onPressed: () {
+                            groupList.removeAt(i);
+                            setState(() {});
+                          },
+                        ),
                       ),
                     );
                   },
@@ -211,10 +218,9 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
   }
 
   Future<Widget> _registerFamily() async {
-    final groupJson =
-        json.encode(Group('\$' + budgetController.text, dueDate.toIso8601String(), groupList));
-    final response = await http.post(
-        'https://aroonsecretsanta.azurewebsites.net/registerFamily/',
+    final groupJson = json.encode(Group(
+        '\$' + budgetController.text, dueDate.toIso8601String(), groupList));
+    final response = await http.post(Config.baseURL + 'registerFamily/',
         body: groupJson,
         encoding: Encoding.getByName("application/json"),
         headers: {'Content-Type': 'application/json'});
@@ -248,7 +254,7 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
                   onPressed: () {
                     Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (BuildContext context) {
-                      return main.HomeState.familyScreen(groupResponse['id']);
+                      return main.HomeState().familyScreen(groupResponse['id']);
                     }));
                   }),
             )
@@ -263,18 +269,4 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
 class RegisterFamilyScreen extends StatefulWidget {
   @override
   RegisterFamilyScreenState createState() => new RegisterFamilyScreenState();
-}
-
-class Group {
-  String budget;
-  String date;
-  List<String> family;
-
-  Group(this.budget, this.date, this.family);
-
-  Map<String, dynamic> toJson() => {
-        'budget': budget,
-        'date': date,
-        'family': family,
-      };
 }

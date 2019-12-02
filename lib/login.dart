@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 
-import './resources.dart';
-import './register.dart';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
+import './register.dart';
+import './resources.dart';
 
 class LoginScreenState extends State<LoginScreen> {
   final nameController = TextEditingController();
@@ -122,7 +122,7 @@ class LoginScreenState extends State<LoginScreen> {
 
   Future<Widget> _loadSanta(String name, String pin) async {
     final response = await http.get(
-        'https://aroonsecretsanta.azurewebsites.net/getSanta/' +
+        Config.baseURL + 'getSanta/' +
             name +
             '?pin=' +
             pin);
