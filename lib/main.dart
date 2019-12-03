@@ -34,7 +34,6 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> {
   final passphraseController = TextEditingController();
-  var family;
 
   @override
   void dispose() {
@@ -54,8 +53,8 @@ class HomeState extends State<Home> {
             onPressed: () {
               Navigator.of(context).push(
                   new MaterialPageRoute(builder: (BuildContext secondContext) {
-                    return _pinScreen(secondContext);
-                  }));
+                return _pinScreen(secondContext);
+              }));
             },
           )
         ],
@@ -65,45 +64,29 @@ class HomeState extends State<Home> {
   }
 
   Widget familyScreen(String passphrase) {
-    return Scaffold(
-      body: FutureBuilder<Widget>(
-        future: loadFamily(passphrase),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return snapshot.data;
-          } else if (snapshot.hasError) {
-            return _familyError();
-          }
-          return Container(
+    return FutureBuilder<Widget>(
+      future: loadFamily(passphrase),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return snapshot.data;
+        } else if (snapshot.hasError) {
+          return _familyError();
+        }
+        return Scaffold(
+          body: Container(
             child: CupertinoActivityIndicator(),
             constraints: BoxConstraints(
                 minWidth: double.infinity, minHeight: double.infinity),
-          );
-        },
-      ),
-      appBar: AppBar(
-        title: Text('Group ' + passphrase),
-        actions: <Widget>[
-//          IconButton(
-//            icon: Icon(Icons.delete),
-//            onPressed: () {},
-//          ),
-          IconButton(
-            icon: Icon(Icons.mobile_screen_share),
-            tooltip: 'Share Group',
-            onPressed: () {
-              if (family != null) {
-                Share.share(Utils.familyToString(family), subject: "My Secret Santa Family");
-              }
-            },
-          )
-        ],
-      ),
+          ),
+          appBar: AppBar(
+            title: Text("Loading Group...")
+          ),
+        );
+      },
     );
   }
 
   Widget _pinScreen(BuildContext context) {
-    family = null;
     return Scaffold(
       appBar: AppBar(
         title: Text(Strings.groups),
@@ -113,8 +96,8 @@ class HomeState extends State<Home> {
             onPressed: () {
               Navigator.of(context).push(
                   new MaterialPageRoute(builder: (BuildContext newPageContext) {
-                    return RegisterFamilyScreen();
-                  }));
+                return RegisterFamilyScreen();
+              }));
             },
           )
         ],
@@ -133,9 +116,7 @@ class HomeState extends State<Home> {
                   child: new Icon(
                     Icons.people,
                     size: 100.0,
-                    color: Theme
-                        .of(context)
-                        .primaryColor,
+                    color: Theme.of(context).primaryColor,
                   ),
                 ),
                 Container(
@@ -156,8 +137,8 @@ class HomeState extends State<Home> {
                         if (passphraseController.text != "") {
                           Navigator.of(context).push(new MaterialPageRoute(
                               builder: (BuildContext context) {
-                                return familyScreen(passphraseController.text);
-                              }));
+                            return familyScreen(passphraseController.text);
+                          }));
                         } else {
                           final snackBar = SnackBar(
                             content: Text('Oops - we need your Group ID.'),
@@ -181,37 +162,58 @@ class HomeState extends State<Home> {
     final response = await http
         .get(Config.baseURL + 'family?hideGiftees=true&familyId=' + passphrase);
     if (response.statusCode == 200) {
+      var family;
       try {
-        setState(() {
-          family = json.decode(response.body);
-        });
+        family = json.decode(response.body);
       } catch (e) {
         return _familyError();
       }
-      return Container(
-        padding: EdgeInsets.only(top: 10.0, left: 15.0, right: 15.0),
-        color: Colors.grey[100],
-        child: ListView.builder(
-            itemCount: family.length,
-            itemBuilder: (context, i) {
-              return Card(
-                elevation: 2.0,
-                child: ListTile(
-                  title: Text(family[i]['name']),
-                  subtitle: Text('PIN: ' + family[i]['pin']),
-                  trailing: IconButton(
-                    icon: Icon(Icons.content_copy),
-                    tooltip: 'Copy PIN',
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: family[i]['pin']));
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text('PIN copied to clipboard.'),
-                      ));
-                    },
+      return Scaffold(
+        body: Container(
+          padding: EdgeInsets.only(top: 10.0, left: 15.0, right: 15.0),
+          color: Colors.grey[100],
+          child: ListView.builder(
+              itemCount: family.length,
+              itemBuilder: (context, i) {
+                return Card(
+                  elevation: 2.0,
+                  child: ListTile(
+                    title: Text(family[i]['name']),
+                    subtitle: Text('PIN: ' + family[i]['pin']),
+                    trailing: IconButton(
+                      icon: Icon(Icons.content_copy),
+                      tooltip: 'Copy PIN',
+                      onPressed: () {
+                        Clipboard.setData(
+                            ClipboardData(text: family[i]['pin']));
+                        Scaffold.of(context).showSnackBar(SnackBar(
+                          content: Text('PIN copied to clipboard.'),
+                        ));
+                      },
+                    ),
                   ),
-                ),
-              );
-            }),
+                );
+              }),
+        ),
+        appBar: AppBar(
+          title: Text('Group ' + passphrase),
+          actions: <Widget>[
+//          IconButton(
+//            icon: Icon(Icons.delete),
+//            onPressed: () {},
+//          ),
+            IconButton(
+              icon: Icon(Icons.mobile_screen_share),
+              tooltip: 'Share Group',
+              onPressed: () {
+                if (family != null) {
+                  Share.share(Utils.familyToString(family),
+                      subject: "My Secret Santa Family");
+                }
+              },
+            )
+          ],
+        ),
       );
     } else {
       return _familyError();
