@@ -31,11 +31,11 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
                   Scaffold.of(context).showSnackBar(SnackBar(
                     content: Text('Oops - your group needs a budget!'),
                   ));
-                } else if (dueDate == null) {
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                    content:
-                        Text('Oops - your group needs gift exchange date!'),
-                  ));
+//                } else if (dueDate == null) {
+//                  Scaffold.of(context).showSnackBar(SnackBar(
+//                    content:
+//                        Text('Oops - your group needs gift exchange date!'),
+//                  ));
                 } else if (groupList.length == 0) {
                   Scaffold.of(context).showSnackBar(SnackBar(
                     content: Text('Oops - your group needs members!'),
@@ -219,7 +219,8 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
 
   Future<Widget> _registerFamily() async {
     final groupJson = json.encode(Group(
-        '\$' + budgetController.text, dueDate.toIso8601String(), groupList));
+//        '\$' + budgetController.text, dueDate.toIso8601String(), groupList));
+        '\$' + budgetController.text, '', groupList));
     final response = await http.post(Config.baseURL + 'registerFamily/',
         body: groupJson,
         encoding: Encoding.getByName("application/json"),
