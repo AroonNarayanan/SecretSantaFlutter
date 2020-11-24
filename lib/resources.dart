@@ -2,6 +2,9 @@ class Strings {
   static const yourGroup = 'Your Group';
   static const groups = 'Groups';
   static const secretSanta = 'Secret Santa';
+  static const budget = 'Set your budget:';
+  static const removeMember = 'Remove Member';
+  static const dueDate = 'Set Gift Exchange Date';
 }
 
 class Utils {
@@ -21,4 +24,5 @@ class Utils {
 
 class Config {
   static String baseURL = 'https://aroonsecretsanta.azurewebsites.net/';
+  static String registerFamily = baseURL + 'family/';
 }

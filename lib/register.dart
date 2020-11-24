@@ -3,16 +3,20 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:secret_santa/api.dart';
+import 'package:secret_santa/card/family.dart';
+import 'package:secret_santa/dialog/addmember.dart';
+import 'package:secret_santa/screen/family.dart';
 
 import './main.dart' as main;
 import './resources.dart';
 import 'models.dart';
 
 class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
-  var groupList = <String>[];
+  List<FamilyMember> groupList = new List<FamilyMember>();
   final budgetController = TextEditingController();
-  final nameController = TextEditingController();
+  final newMemberNameController = TextEditingController();
+  final newMemberInterestsController = TextEditingController();
   var groupSubmitted = false;
   DateTime dueDate;
   var dueDateString = 'no date set';
@@ -31,11 +35,11 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
                   Scaffold.of(context).showSnackBar(SnackBar(
                     content: Text('Oops - your group needs a budget!'),
                   ));
-//                } else if (dueDate == null) {
-//                  Scaffold.of(context).showSnackBar(SnackBar(
-//                    content:
-//                        Text('Oops - your group needs gift exchange date!'),
-//                  ));
+                } else if (dueDate == null) {
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content:
+                        Text('Oops - your group needs gift exchange date!'),
+                  ));
                 } else if (groupList.length == 0) {
                   Scaffold.of(context).showSnackBar(SnackBar(
                     content: Text('Oops - your group needs members!'),
@@ -54,41 +58,18 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
           showDialog(
               context: context,
               builder: (BuildContext context) {
-                return Dialog(
-                  child: Container(
-                    padding: EdgeInsets.all(20.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Text(
-                          "Member Information",
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                        TextField(
-                          decoration: InputDecoration(labelText: "Name"),
-                          controller: nameController,
-                          textCapitalization: TextCapitalization.words,
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(top: 10.0),
-                          width: double.infinity,
-                          child: RaisedButton(
-                            child: Text("Add Member"),
-                            onPressed: () {
-                              if (nameController.text.trim() != "") {
-                                groupList.add(nameController.text.trim());
-                                nameController.clear();
-                                setState(() {});
-                                Navigator.of(context, rootNavigator: true)
-                                    .pop();
-                              }
-                            },
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                );
+                return addMemberDialog(
+                    newMemberNameController, newMemberInterestsController, () {
+                  if (newMemberNameController.text.trim() != "") {
+                    groupList.add(FamilyMember(
+                        newMemberNameController.text.trim(),
+                        newMemberInterestsController.text.trim()));
+                    newMemberNameController.clear();
+                    newMemberInterestsController.clear();
+                    setState(() {});
+                    Navigator.of(context, rootNavigator: true).pop();
+                  }
+                });
               });
         },
         child: Icon(Icons.add),
@@ -105,58 +86,20 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
           width: double.infinity,
           child: Column(
             children: <Widget>[
-              Card(
-                elevation: 2.0,
-                child: Container(
-                  width: double.infinity,
-                  margin: EdgeInsets.all(10.0),
-                  child: Column(
-                    children: <Widget>[
-                      Text(
-                        'Set your budget:',
-                        style: TextStyle(fontSize: 20.0),
-                      ),
-                      Container(
-                        constraints: BoxConstraints(maxWidth: 100.0),
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          decoration:
-                              InputDecoration(icon: Icon(Icons.attach_money)),
-                          controller: budgetController,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-//              Card(
-//                elevation: 2.0,
-//                child: Container(
-//                  margin: EdgeInsets.all(10.0),
-//                  width: double.infinity,
-//                  child: Column(
-//                    children: <Widget>[
-//                      RaisedButton(
-//                        child: Text('Set Gift Exchange Date'),
-//                        onPressed: () async {
-//                          dueDate = await showDatePicker(
-//                            context: context,
-//                            initialDate: DateTime(DateTime.now().year,
-//                                DateTime.now().month, DateTime.now().day + 14),
-//                            firstDate: DateTime.now(),
-//                            lastDate: DateTime(2100),
-//                          );
-//                          dueDateString = dueDate != null
-//                              ? Utils.dateToReadableString(dueDate)
-//                              : 'no date set';
-//                          setState(() {});
-//                        },
-//                      ),
-//                      Text(dueDateString),
-//                    ],
-//                  ),
-//                ),
-//              ),
+              budgetCard(budgetController),
+              dueDateCard(dueDateString, () async {
+                dueDate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime(DateTime.now().year,
+                      DateTime.now().month, DateTime.now().day + 14),
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime(2100),
+                );
+                dueDateString = dueDate != null
+                    ? Utils.dateToReadableString(dueDate)
+                    : 'no date set';
+                setState(() {});
+              }),
               Card(
                 elevation: 3.0,
                 child: Column(
@@ -173,20 +116,10 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
               new Expanded(
                 child: ListView.builder(
                   itemBuilder: (context, i) {
-                    return Card(
-                      elevation: 2.0,
-                      child: ListTile(
-                        title: Text(groupList[i]),
-                        trailing: IconButton(
-                          icon: Icon(Icons.delete),
-                          tooltip: 'Remove Member',
-                          onPressed: () {
-                            groupList.removeAt(i);
-                            setState(() {});
-                          },
-                        ),
-                      ),
-                    );
+                    return staticFamilyMemberCard(groupList[i], () {
+                      groupList.remove(groupList.removeAt(i));
+                      setState(() {});
+                    });
                   },
                   itemCount: groupList.length,
                 ),
@@ -218,48 +151,16 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
   }
 
   Future<Widget> _registerFamily() async {
-    final groupJson = json.encode(Group(
-//        '\$' + budgetController.text, dueDate.toIso8601String(), groupList));
-        '\$' + budgetController.text, '', groupList));
-    final response = await http.post(Config.baseURL + 'registerFamily/',
-        body: groupJson,
-        encoding: Encoding.getByName("application/json"),
-        headers: {'Content-Type': 'application/json'});
+    final response =
+        await registerFamily(budgetController.text, dueDate, groupList);
     if (response.statusCode == 200) {
       final groupResponse = json.decode(response.body);
-      return Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-                child: Text(
-                  'your group has been created!\nyour group ID is',
-                  style: TextStyle(fontSize: 20.0),
-                  textAlign: TextAlign.center,
-                ),
-                width: double.infinity,
-                alignment: Alignment(0.0, 0.0)),
-            Text(
-              groupResponse['id'],
-              style: TextStyle(fontSize: 30.0),
-            ),
-            Text(
-              'make sure you write this down -\nyou won\'t see it again.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 20.0),
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 10.0),
-              child: RaisedButton(
-                  child: Text('View Group'),
-                  onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (BuildContext context) {
-                      return main.HomeState().familyScreen(groupResponse['id']);
-                    }));
-                  }),
-            )
-          ]);
+      return familyCreatedScreen(groupResponse['id'], () {
+        Navigator.of(context)
+            .pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+          return main.HomeState().familyScreen(groupResponse['id']);
+        }));
+      });
     } else {
       return Text('Error encountered. Please try again. \n' +
           response.statusCode.toString());
