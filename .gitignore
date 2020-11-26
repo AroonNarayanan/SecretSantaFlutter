@@ -11,3 +11,5 @@ build/
 android/.idea/
 android/app/key.jks
 android/key.properties
+
+.idea/

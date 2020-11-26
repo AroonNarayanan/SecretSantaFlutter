@@ -5,11 +5,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:secret_santa/card/family.dart';
+import 'package:secret_santa/models.dart';
+import 'package:secret_santa/screen/family.dart';
+import 'package:secret_santa/screen/giftee.dart';
 import 'package:share/share.dart';
 
 import './login.dart';
 import './register.dart';
 import './resources.dart';
+import 'api.dart';
 
 void main() => runApp(MyApp());
 
@@ -65,12 +70,12 @@ class HomeState extends State<Home> {
 
   Widget familyScreen(String passphrase) {
     return FutureBuilder<Widget>(
-      future: loadFamily(passphrase),
+      future: _loadFamily(passphrase),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return snapshot.data;
         } else if (snapshot.hasError) {
-          return _familyError();
+          return familyError();
         }
         return Scaffold(
           body: Container(
@@ -78,9 +83,7 @@ class HomeState extends State<Home> {
             constraints: BoxConstraints(
                 minWidth: double.infinity, minHeight: double.infinity),
           ),
-          appBar: AppBar(
-            title: Text("Loading Group...")
-          ),
+          appBar: AppBar(title: Text("Loading Group...")),
         );
       },
     );
@@ -102,113 +105,57 @@ class HomeState extends State<Home> {
           )
         ],
       ),
-      body: Container(
-        color: Colors.grey[100],
-        alignment: AlignmentDirectional.center,
-        child: Card(
-          elevation: 2.0,
-          child: Container(
-            padding: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  child: new Icon(
-                    Icons.people,
-                    size: 100.0,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-                Container(
-                  width: 200.0,
-                  child: TextField(
-                    decoration: InputDecoration(hintText: 'Group ID'),
-                    controller: passphraseController,
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                Container(
-                  width: 200.0,
-                  margin: EdgeInsets.only(top: 5.0),
-                  child: Builder(builder: (BuildContext context) {
-                    return RaisedButton(
-                      child: Text('View Group'),
-                      onPressed: () {
-                        if (passphraseController.text != "") {
-                          Navigator.of(context).push(new MaterialPageRoute(
-                              builder: (BuildContext context) {
-                            return familyScreen(passphraseController.text);
-                          }));
-                        } else {
-                          final snackBar = SnackBar(
-                            content: Text('Oops - we need your Group ID.'),
-                          );
+      body: groupLoginScreen(context, passphraseController, () {
+        if (passphraseController.text != "") {
+          Navigator.of(context)
+              .push(new MaterialPageRoute(builder: (BuildContext context) {
+            return familyScreen(passphraseController.text);
+          }));
+        } else {
+          final snackBar = SnackBar(
+            content: Text(Strings.noGroupIdErr),
+          );
 
-                          Scaffold.of(context).showSnackBar(snackBar);
-                        }
-                      },
-                    );
-                  }),
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
+          Scaffold.of(context).showSnackBar(snackBar);
+        }
+      }),
     );
   }
 
-  Future<Widget> loadFamily(String passphrase) async {
-    final response = await http
-        .get(Config.baseURL + 'family?hideGiftees=true&familyId=' + passphrase);
+  Future<Widget> _loadFamily(String passphrase) async {
+    final response = await loadFamily(passphrase);
     if (response.statusCode == 200) {
-      var family;
+      Group family;
       try {
-        family = json.decode(response.body);
+        family = Group.fromJson(json.decode(response.body));
       } catch (e) {
-        return _familyError();
+        return familyError();
       }
       return Scaffold(
         body: Container(
           padding: EdgeInsets.only(top: 10.0, left: 15.0, right: 15.0),
           color: Colors.grey[100],
           child: ListView.builder(
-              itemCount: family.length,
+              itemCount: family.members.length,
               itemBuilder: (context, i) {
-                return Card(
-                  elevation: 2.0,
-                  child: ListTile(
-                    title: Text(family[i]['name']),
-                    subtitle: Text('PIN: ' + family[i]['pin']),
-                    trailing: IconButton(
-                      icon: Icon(Icons.content_copy),
-                      tooltip: 'Copy PIN',
-                      onPressed: () {
-                        Clipboard.setData(
-                            ClipboardData(text: family[i]['pin']));
-                        Scaffold.of(context).showSnackBar(SnackBar(
-                          content: Text('PIN copied to clipboard.'),
-                        ));
-                      },
-                    ),
-                  ),
-                );
+                return familyMemberCardWithPin(family.members[i], () {
+                  Clipboard.setData(ClipboardData(text: family.members[i].pin));
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text(Strings.copiedPin),
+                  ));
+                });
               }),
         ),
         appBar: AppBar(
           title: Text('Group ' + passphrase),
           actions: <Widget>[
-//          IconButton(
-//            icon: Icon(Icons.delete),
-//            onPressed: () {},
-//          ),
             IconButton(
               icon: Icon(Icons.mobile_screen_share),
-              tooltip: 'Share Group',
+              tooltip: Strings.shareTooltip,
               onPressed: () {
                 if (family != null) {
                   Share.share(Utils.familyToString(family),
-                      subject: "My Secret Santa Family");
+                      subject: Strings.shareSubject);
                 }
               },
             )
@@ -216,19 +163,7 @@ class HomeState extends State<Home> {
         ),
       );
     } else {
-      return _familyError();
+      return familyError();
     }
-  }
-
-  static Widget _familyError() {
-    return Container(
-        constraints: BoxConstraints(
-            minWidth: double.infinity, minHeight: double.infinity),
-        alignment: Alignment(0.0, 0.0),
-        child: Text(
-          'We could\'t load your family. Do you have the right password?',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 24.0),
-        ));
   }
 }
