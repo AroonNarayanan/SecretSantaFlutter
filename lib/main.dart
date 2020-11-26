@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: Strings.secretSanta,
       home: Home(),
+      debugShowCheckedModeBanner: false,
       theme: new ThemeData(
           primaryColor: Colors.red,
           accentColor: Colors.redAccent,

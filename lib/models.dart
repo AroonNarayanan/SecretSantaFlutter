@@ -12,8 +12,8 @@ class Group {
       {'budget': budget, 'due': due.toIso8601String(), 'members': members};
 
   Group.fromJson(Map<String, dynamic> json)
-      : budget = json['budget'],
-        due = DateTime.tryParse(json['due']),
+      : budget = json['budget'] ?? '',
+        due = DateTime.tryParse(json['due'] ?? ''),
         familyId = json['familyId'],
         members = parseFamilyMemberList(json['members']);
 }
