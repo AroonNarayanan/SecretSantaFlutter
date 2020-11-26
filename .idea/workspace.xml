@@ -23,8 +23,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2c954aef-bd8e-4dd1-afc0-531d2bbfcd33" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/giftee.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.flutter-plugins-dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/.flutter-plugins-dependencies" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/card/family.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/card/family.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/login.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/login.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/models.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/models.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/register.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/register.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/resources.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/resources.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/family.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/family.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,25 +136,33 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state width="1746" height="264" key="GridCell.Tab.0.bottom" timestamp="1606093906869">
+    <state x="362" y="173" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1606403183726">
       <screen x="0" y="23" width="1792" height="1017" />
     </state>
-    <state width="1746" height="264" key="GridCell.Tab.0.bottom/0.23.1792.1017@0.23.1792.1017" timestamp="1606093906869" />
-    <state width="1746" height="264" key="GridCell.Tab.0.center" timestamp="1606093906869">
+    <state x="362" y="173" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1792.1017@0.23.1792.1017" timestamp="1606403183726" />
+    <state width="1746" height="264" key="GridCell.Tab.0.bottom" timestamp="1606400858284">
       <screen x="0" y="23" width="1792" height="1017" />
     </state>
-    <state width="1746" height="264" key="GridCell.Tab.0.center/0.23.1792.1017@0.23.1792.1017" timestamp="1606093906869" />
-    <state width="1746" height="264" key="GridCell.Tab.0.left" timestamp="1606093906868">
+    <state width="1746" height="264" key="GridCell.Tab.0.bottom/0.23.1792.1017@0.23.1792.1017" timestamp="1606400858284" />
+    <state width="1746" height="264" key="GridCell.Tab.0.center" timestamp="1606400858283">
       <screen x="0" y="23" width="1792" height="1017" />
     </state>
-    <state width="1746" height="264" key="GridCell.Tab.0.left/0.23.1792.1017@0.23.1792.1017" timestamp="1606093906868" />
-    <state width="1746" height="264" key="GridCell.Tab.0.right" timestamp="1606093906869">
+    <state width="1746" height="264" key="GridCell.Tab.0.center/0.23.1792.1017@0.23.1792.1017" timestamp="1606400858283" />
+    <state width="1746" height="264" key="GridCell.Tab.0.left" timestamp="1606400858282">
       <screen x="0" y="23" width="1792" height="1017" />
     </state>
-    <state width="1746" height="264" key="GridCell.Tab.0.right/0.23.1792.1017@0.23.1792.1017" timestamp="1606093906869" />
+    <state width="1746" height="264" key="GridCell.Tab.0.left/0.23.1792.1017@0.23.1792.1017" timestamp="1606400858282" />
+    <state width="1746" height="264" key="GridCell.Tab.0.right" timestamp="1606400858283">
+      <screen x="0" y="23" width="1792" height="1017" />
+    </state>
+    <state width="1746" height="264" key="GridCell.Tab.0.right/0.23.1792.1017@0.23.1792.1017" timestamp="1606400858283" />
     <state x="399" y="150" key="SettingsEditor" timestamp="1606003937390">
       <screen x="0" y="23" width="1792" height="1017" />
     </state>
     <state x="399" y="150" key="SettingsEditor/0.23.1792.1017@0.23.1792.1017" timestamp="1606003937390" />
+    <state x="590" y="144" width="615" height="735" key="find.popup" timestamp="1606357721623">
+      <screen x="0" y="23" width="1792" height="1017" />
+    </state>
+    <state x="590" y="144" width="615" height="735" key="find.popup/0.23.1792.1017@0.23.1792.1017" timestamp="1606357721623" />
   </component>
 </project>

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+import '../resources.dart';
+
 Widget familyCreatedScreen(String familyId, Function onViewGroup) {
   return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -32,4 +34,16 @@ Widget familyCreatedScreen(String familyId, Function onViewGroup) {
               }),
         )
       ]);
+}
+
+Widget familyError() {
+  return Container(
+      constraints:
+          BoxConstraints(minWidth: double.infinity, minHeight: double.infinity),
+      alignment: Alignment(0.0, 0.0),
+      child: Text(
+        Strings.groupErr,
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 24.0),
+      ));
 }

@@ -57,13 +57,30 @@ Card dueDateCard(String dueDateString, Function onPickDate) {
       child: Column(
         children: <Widget>[
           RaisedButton(
-            child: Text(Strings.dueDate),
+            child: Text(Strings.dueDateButtonTitle),
             onPressed: () async {
               await onPickDate();
             },
           ),
           Text(dueDateString),
         ],
+      ),
+    ),
+  );
+}
+
+Card familyMemberCardWithPin(FamilyMember familyMember, Function onCopy) {
+  return Card(
+    elevation: 2.0,
+    child: ListTile(
+      title: Text(familyMember.name),
+      subtitle: Text('PIN: ' + familyMember.pin),
+      trailing: IconButton(
+        icon: Icon(Icons.content_copy),
+        tooltip: 'Copy PIN',
+        onPressed: () {
+          onCopy();
+        },
       ),
     ),
   );

@@ -19,13 +19,13 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
   final newMemberInterestsController = TextEditingController();
   var groupSubmitted = false;
   DateTime dueDate;
-  var dueDateString = 'no date set';
+  var dueDateString = Strings.dueDateDefault;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Register a Group'),
+        title: Text(Strings.registerGroupTitle),
         actions: <Widget>[
           Builder(builder: (BuildContext context) {
             return IconButton(
@@ -33,16 +33,16 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
               onPressed: () {
                 if (budgetController.text == '') {
                   Scaffold.of(context).showSnackBar(SnackBar(
-                    content: Text('Oops - your group needs a budget!'),
+                    content: Text(Strings.noBudgetErr),
                   ));
                 } else if (dueDate == null) {
                   Scaffold.of(context).showSnackBar(SnackBar(
                     content:
-                        Text('Oops - your group needs gift exchange date!'),
+                        Text(Strings.noDueDateErr),
                   ));
                 } else if (groupList.length == 0) {
                   Scaffold.of(context).showSnackBar(SnackBar(
-                    content: Text('Oops - your group needs members!'),
+                    content: Text(Strings.noMembersErr),
                   ));
                 } else {
                   groupSubmitted = true;
@@ -97,7 +97,7 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
                 );
                 dueDateString = dueDate != null
                     ? Utils.dateToReadableString(dueDate)
-                    : 'no date set';
+                    : Strings.dueDateDefault;
                 setState(() {});
               }),
               Card(
@@ -109,7 +109,7 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
               Container(
                 margin: EdgeInsets.only(top: 20.0),
                 child: Text(
-                  'Members:',
+                  Strings.membersTitle,
                   style: TextStyle(fontSize: 20.0),
                 ),
               ),
@@ -154,11 +154,11 @@ class RegisterFamilyScreenState extends State<RegisterFamilyScreen> {
     final response =
         await registerFamily(budgetController.text, dueDate, groupList);
     if (response.statusCode == 200) {
-      final groupResponse = json.decode(response.body);
-      return familyCreatedScreen(groupResponse['id'], () {
+      final groupResponse = Group.fromJson(json.decode(response.body));
+      return familyCreatedScreen(groupResponse.familyId, () {
         Navigator.of(context)
             .pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-          return main.HomeState().familyScreen(groupResponse['id']);
+          return main.HomeState().familyScreen(groupResponse.familyId);
         }));
       });
     } else {
