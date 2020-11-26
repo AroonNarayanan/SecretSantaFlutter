@@ -24,6 +24,7 @@ class Strings {
   static const gifteeScreenHeader = 'you\'re shopping for';
   static const haveFun = 'have fun!';
   static const dueHeader = 'your gift is due on';
+  static const error = 'Error';
 }
 
 class Utils {
@@ -44,6 +45,6 @@ class Utils {
 class Config {
   static String baseURL = 'https://remotesecretsanta.herokuapp.com/v2/';
   static String registerFamily = baseURL + 'family/';
-  static String loadFamily = baseURL + 'family?familyId=';
-  static String loadMember = baseURL + 'unified/';
+  static String loadFamily = baseURL + 'unified/family?familyId=';
+  static String loadMember = baseURL + 'unified/member/';
 }

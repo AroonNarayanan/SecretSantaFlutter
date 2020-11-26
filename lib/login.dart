@@ -134,7 +134,8 @@ class LoginScreenState extends State<LoginScreen> {
           constraints: BoxConstraints(
               minWidth: double.infinity, minHeight: double.infinity),
           alignment: Alignment(0.0, 0.0),
-          child: Text(Strings.cannotFindMember,
+          child: Text(
+            Strings.cannotFindMember,
             style: TextStyle(fontSize: 24.0),
             textAlign: TextAlign.center,
           ));

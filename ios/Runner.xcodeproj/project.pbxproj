@@ -66,7 +66,6 @@
 				575FDAE229167A70DE790606 /* Pods-Runner.debug.xcconfig */,
 				2514AF3856F46A52A632AD15 /* Pods-Runner.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -177,6 +176,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);

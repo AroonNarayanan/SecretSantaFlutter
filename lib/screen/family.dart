@@ -37,13 +37,18 @@ Widget familyCreatedScreen(String familyId, Function onViewGroup) {
 }
 
 Widget familyError() {
-  return Container(
-      constraints:
-          BoxConstraints(minWidth: double.infinity, minHeight: double.infinity),
-      alignment: Alignment(0.0, 0.0),
-      child: Text(
-        Strings.groupErr,
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 24.0),
-      ));
+  return Scaffold(
+    body: Container(
+        constraints: BoxConstraints(
+            minWidth: double.infinity, minHeight: double.infinity),
+        alignment: Alignment(0.0, 0.0),
+        child: Text(
+          Strings.groupErr,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 24.0),
+        )),
+    appBar: AppBar(
+      title: Text(Strings.error),
+    ),
+  );
 }
