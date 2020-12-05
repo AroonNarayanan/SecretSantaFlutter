@@ -13,3 +13,5 @@ android/app/key.jks
 android/key.properties
 
 .idea/
+
+.flutter-plugins-dependencies
